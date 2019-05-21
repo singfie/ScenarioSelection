@@ -1,3 +1,8 @@
+# preamble
+library(plyr)
+library(dplyr)
+library(tidyverse)
+library(reshape2)
 # feed in data
 setwd("")
 plane_crash <- read.csv("plane_crash_v2.csv", header=TRUE)
@@ -8,8 +13,6 @@ plane_crash$date <- as.POSIXct(plane_crash$date, format = "%d-%b-%Y")
 ############## SCENARIO GROUP AGGREGATION ##############
 # function to aggregate scenarios to groups and add to dataframe, no input parameter needed
 add_scenario_group <- function(data){
-  library(plyr)
-  library(dplyr)
   data[,ncol(data)+1] <- NA
   colnames(data) <- c(colnames(data[,1:ncol(data)-1]),"group")
   # Assign every accident reason to broader categories for analysis
@@ -42,8 +45,6 @@ add_scenario_group <- function(data){
 ############## SIMULATOR FEASIBILITY ##############
 # function to assign simulator feasibility, no input parameter needed, rational explained in code
 add_sim_feasibility <- function(data){
-  library(plyr)
-  library(dplyr)
   data[,ncol(data)+1] <- NA
   colnames(data) <- c(colnames(data[,1:ncol(data)-1]),"sim")
   # We are not able to simulate airframe failures in the simulation model
@@ -99,7 +100,6 @@ years_of_interest <- function(data, start_date, end_date){
 # NOTE: this function uses fractional information, it looks for all values containing the passed type
 # for multiple selections pass a type list in the format 'type a | type b | type c'
 type_of_interest <- function(data, type){ 
-  library(tidyverse)
   reduced_data <- data %>%
     filter(str_detect(nature, type))
   return(reduced_data)
@@ -114,7 +114,6 @@ type_of_interest <- function(data, type){
 # function to reduce the dataset to manufacturer(s) of interest
 # same structure as "type of interest"; pass list using "|" as seperator for multiple entries
 manuf_of_interest <- function(data, manuf){ 
-  library(tidyverse)
   reduced_data <- data %>%
     filter(str_detect(plane_type, manuf))
   return(reduced_data)
@@ -129,7 +128,6 @@ manuf_of_interest <- function(data, manuf){
 # function to reduce the dataset to flight phases of interest
 # same structure as "type of interest"; pass list using "|" as seperator for multiple entries
 phase_of_interest <- function(data, interest){ 
-  library(tidyverse)
   reduced_data <- data %>%
     filter(str_detect(phase, interest))
   return(reduced_data)
@@ -144,7 +142,6 @@ phase_of_interest <- function(data, interest){
 # function to reduce the dataset to scenario groups of interest
 # same structure as "type of interest"; pass list using "|" as seperator for multiple entries
 scenario_of_interest <- function(data, interest){ 
-  library(tidyverse)
   reduced_data <- data %>%
     filter(str_detect(group, interest))
   return(reduced_data)
@@ -184,7 +181,6 @@ generate_frequency_overview <- function(data){
 # Hence this method trims the dataset by on-ground phases, if not done before
 # flight phases of interest need to be passed in the form of a vector
 sim_score <- function(overview_data, flight_times, flight_phases_of_interest){
-  library(reshape2)
   # trim to available data
   trimvars <- c("APR", "ENR", "ICL", "LDG", "TOF")
   overview_data <- overview_data[trimvars]
