@@ -1,5 +1,5 @@
 # feed in data
-setwd("/Users/fietekrutein/Documents/University/University of Washington/Courses/2018 Q4/IND E 600 Research Credits")
+setwd("")
 plane_crash <- read.csv("plane_crash_v2.csv", header=TRUE)
 flight_time <- read.csv("flight_time.csv", header=TRUE)
 # data transformations
