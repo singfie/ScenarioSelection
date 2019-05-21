@@ -10,79 +10,6 @@ flight_time <- read.csv("flight_time.csv", header=TRUE)
 # data transformations
 plane_crash$date <- as.POSIXct(plane_crash$date, format = "%d-%b-%Y")
 
-############## SCENARIO GROUP AGGREGATION ##############
-# function to aggregate scenarios to groups and add to dataframe, no input parameter needed
-add_scenario_group <- function(data){
-  data[,ncol(data)+1] <- NA
-  colnames(data) <- c(colnames(data[,1:ncol(data)-1]),"group")
-  # Assign every accident reason to broader categories for analysis
-  data[grep("Airframe",data$accident_type),]$group <- "Airframe"
-  data[grep("Engines",data$accident_type),]$group <- "Engines"
-  data[grep("Flight control surfaces",data$accident_type),]$group <- "Flight control surfaces"
-  data[grep("Instruments",data$accident_type),]$group <- "Instruments"
-  data[grep("Pressurization",data$accident_type),]$group <- "Pressurization"
-  data[grep("Systems",data$accident_type),]$group <- "Systems"
-  data[grep("Cargo",data$accident_type),]$group <- "Cargo"
-  data[grep("Collision",data$accident_type),]$group <- "Collision"
-  data[grep("External factors",data$accident_type),]$group <- "External factors"
-  data[grep("Fire",data$accident_type),]$group <- "Fire"
-  data[grep("Flightcrew",data$accident_type),]$group <- "Flightcrew"
-  data[grep("Landing/takeoff",data$accident_type),]$group <- "Landing/takeoff"
-  data[grep("Maintenance",data$accident_type),]$group <- "Maintenance"
-  data[grep("Result",data$accident_type),]$group <- "Result"
-  data[grep("Security",data$accident_type),]$group <- "Security"
-  data[grep("Undercarriage",data$accident_type),]$group <- "Undercarriage"
-  data[grep("ATC & navigation",data$accident_type),]$group <- "ATC & navigation"
-  # set the group data field as a factor
-  data$group <- as.factor(data$group)
-  return(data)
-}
-
-# testing
-# plane_crash <- add_scenario_group(plane_crash)
-
-
-############## SIMULATOR FEASIBILITY ##############
-# function to assign simulator feasibility, no input parameter needed, rational explained in code
-add_sim_feasibility <- function(data){
-  data[,ncol(data)+1] <- NA
-  colnames(data) <- c(colnames(data[,1:ncol(data)-1]),"sim")
-  # We are not able to simulate airframe failures in the simulation model
-  data[grep("Airframe",data$accident_type),]$sim <- "No"
-  # We also cannot really simulate a collision with an aircraft
-  data[grep("Collision - Aircraft",data$accident_type),]$sim <- "No"
-  # Collisions with ground equipment also need to be excluded
-  data[grep("Collision - Object",data$accident_type),]$sim <- "No"
-  # but collision with birds can be included
-  data[grep("Collision - Object - Bird",data$accident_type),]$sim <- "Yes"
-  # Fires on the ground are also irrelevant for our study
-  data[grep("Fire",data$accident_type),]$sim <- "No"
-  data[grep("Fire - Inflight",data$accident_type),]$sim <- "Yes"
-  data[grep("Fire - Litium battery thermal event",data$accident_type),]$sim <- "Yes"
-  # due to the fact that we do not have a communications panel for our experiment we also 
-  # only have limited ability to simulate ATC & Navigation issues
-  data[grep("ATC & navigation",data$accident_type),]$sim <- "Limited"
-  # we can also exclude maintenance issues as this is not simulatable
-  data[grep("Maintenance",data$accident_type),]$sim <- "No"
-  # furthermore, we want to exclude security issues
-  data[grep("Security",data$accident_type),]$sim <- "No"
-  # Flight crew issues also should not be addressed
-  data[grep("Flightcrew",data$accident_type),]$sim <- "No"
-  # We also want to exclude undercarriage issues as these are not easy to simulate
-  data[grep("Undercarriage",data$accident_type),]$sim <- "Limited"
-  # Also, take-off and landing mistakes are something that we cannot really simulate as they are the consequence of issues
-  data[grep("Landing/takeoff",data$accident_type),]$sim <- "Limited"
-  # we can also assess the results of issues to be not simulatable
-  data[grep("Result",data$accident_type),]$sim <- "No"
-  # convert to factor
-  data$sim <- as.factor(data$sim)
-  return(data)
-}
-
-# testing
-# plane_crash <- add_sim_feasibility(plane_crash)
-
-
 ############## DATE RANGE OF INTEREST ##############
 # function to reduce the dataset to the date-range of interest
 years_of_interest <- function(data, start_date, end_date){
@@ -216,8 +143,6 @@ sim_score <- function(overview_data, flight_times, flight_phases_of_interest){
 
 ############## TESTING VALIDATION ##############
 # the test case resembles the data analysis performed in the scope of the submitted paper
-plane_crash <- add_scenario_group(plane_crash)
-plane_crash <- add_sim_feasibility(plane_crash)
 plane_crash_reduced <- years_of_interest(data = plane_crash, 
                                          start_date = "1981-09-26", 
                                          end_date = "2019-05-21")
