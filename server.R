@@ -8,6 +8,8 @@
 #
 
 library(shiny)
+library(ggrepel)
+library(ggplot2)
 source("scenarioSelection.R")
 
 #Read in data
@@ -45,5 +47,9 @@ shinyServer(function(input, output) {
   })
   output$ssTable <- renderTable({
     buttonText()
+  })
+  output$plot1 <- renderPlot({
+    df <- buttonText()
+    ggplot(data=df, aes(x=score, y=phase, size=value)) + geom_point(show.legend=TRUE) + guides(size=FALSE) + ylab("Flight Phase") + xlab("Scenario Score") + xlim(0,0.6) + theme_light() + theme(text = element_text(size=30), legend.position="top", legend.title=element_text(size=20), legend.text=element_text(size=16)) + geom_text_repel(aes(label=value), nudge_y = 0.1, nudge_x=0.025, direction = "x", angle = 0, vjust = 0, segment.size = 0.2, size=6, show.legend=FALSE) 
   })
 })
