@@ -4,6 +4,19 @@ library(dplyr)
 library(tidyverse)
 library(reshape2)
 
+# Read in data
+# feed in data
+plane_crash <- read.csv("plane_crash_v2.csv", header=TRUE)
+flight_time <- read.csv("flight_time.csv", header=TRUE)
+# plane models
+plane_choices <- read.csv("plane_models.csv", header=TRUE)
+plane_choices <- plane_choices[,-1]
+# plane models
+aviation_types <- read.csv("aviation_types.csv", header=TRUE)
+aviation_types <- aviation_types[,-1]
+# data transformations
+plane_crash$date <- as.POSIXct(plane_crash$date, format = "%Y-%m-%d")
+
 ############## DATE RANGE OF INTEREST ##############
 # function to reduce the dataset to the date-range of interest
 years_of_interest <- function(data, start_date, end_date){
@@ -21,6 +34,11 @@ years_of_interest <- function(data, start_date, end_date){
 # NOTE: this function uses fractional information, it looks for all values containing the passed type
 # for multiple selections pass a type list in the format 'type a | type b | type c'
 type_of_interest <- function(data, type){ 
+  if(grepl('Other', type, fixed = T)){
+    others <- paste(c('|-', 'Aerial Work', 'Agricultural', 'Ambulance', 'Demonstration', 'Ferry', 
+                      'Fire', 'Illegal', 'Nature', 'state', 'Parachuting', 'research', 'Test', 'Unknown'), collapse="|")
+    type <- paste0(type, others, collapse = "|")
+  }
   reduced_data <- data %>% filter(str_detect(nature, type))
   return(reduced_data)
 }
